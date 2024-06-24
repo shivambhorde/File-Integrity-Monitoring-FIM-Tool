@@ -101,7 +101,11 @@ def backup_and_manage(target_folders, backup_location):
             delete_old_backups(backup_location)
         else:
             # Log a message indicating that the backup folder already exists
-            logging.warning(f"Backup folder already exists: {backup_folder}")
+            pass
+
+    except FileExistsError:
+        # Log the specific error without printing it
+        pass
 
     except Exception as e:
         logging.exception("An error occurred in backup_and_manage function: %s", e)
@@ -135,11 +139,11 @@ def process_file_changes(filename, event_id):
         
         # Compare with baseline
         if filename not in baseline_data:
-            logger.info(f"[Event ID: 101] [{filename}] New file detected.")
+            logger.info(f"101 File at path: {filename}, Action: New file detected.")
         elif current_hash != baseline_data[filename]["hash"]:
-            logger.info(f"[Event ID: 103] [{filename}] File changed.")
+            logger.info(f"103 File at path: {filename}, Action: File changed.")
         else:
-            logger.info(f"[Event ID: 100] [{filename}] No change in file.")
+            logger.info(f"100 File at path: {filename}, Action: No change in file.")
         
         # Update baseline data with new hash
         baseline_data[filename] = {"hash": current_hash, "event_id": event_id}
@@ -181,11 +185,11 @@ def process_image_changes(filename, event_id):
 
         # Compare with baseline
         if filename not in baseline_data:
-            logger.info(f"[Event ID: 101] [{filename}] New image detected.")
+            logger.info(f"101 File at path: {filename}, Action: New image detected.")
         elif current_hash != baseline_data[filename]["hash"]:
-            logger.info(f"[Event ID: 103] [{filename}] Image changed.")
+            logger.info(f"103 File at path: {filename}, Action: Image changed.")
         else:
-            logger.info(f"[Event ID: 100] [{filename}] No change in image.")
+            logger.info(f"100 File at path: {filename}, Action: No change in image.")
 
         # Update baseline data with new hash
         baseline_data[filename] = {"hash": current_hash, "event_id": event_id}
@@ -224,11 +228,11 @@ def process_excel_changes(filename, event_id):
 
         # Compare checksum with the baseline
         if filename not in baseline_data:
-            logger.info(f"[Event ID: 101] [{filename}] New Excel file detected.")
+            logger.info(f"101 File at path: {filename}, Action: New Excel file detected.")
         elif current_checksum != baseline_data[filename]["checksum"]:
-            logger.info(f"[Event ID: 103] [{filename}] Excel file has modified.")
+            logger.info(f"103 File at path: {filename}, Action: Excel file has modified.")
         else:
-            logger.info(f"[Event ID: 100] [{filename}] No change in Excel file.")
+            logger.info(f"100 File at path: {filename}, Action: No change in Excel file.")
 
         # Update baseline data with new checksum
         baseline_data[filename] = {"checksum": current_checksum, "event_id": event_id}
@@ -275,10 +279,10 @@ def process_word_changes(filename, event_id):
         # Check if the file exists
         if not os.path.exists(filename):
             if filename in baseline_data:
-                logger.info(f"[Event ID: {event_id}] [{filename}] Word document has been deleted.")
+                logger.info(f"102 File at path: {event_id} {filename}, Action: Word document has been deleted.")
                 del baseline_data[filename]
             else:
-                logger.warning(f"[Event ID: {event_id}] [{filename}] Word document deletion event occurred but not tracked.")
+                logger.warning(f"*** {event_id}] [{filename}] Word document deletion event occurred but not tracked.")
             return
 
         # Calculate hash of the current Word document
@@ -286,11 +290,11 @@ def process_word_changes(filename, event_id):
 
         # Check if the file is not a temporary Word file and not in baseline data
         if not filename.startswith('~$') and filename not in baseline_data:
-            logger.info(f"[Event ID: {event_id}] [{filename}] New Word document detected.")
+            logger.info(f"101 File at path: {event_id} {filename}, Action: New Word document detected.")
         elif filename in baseline_data and current_hash != baseline_data[filename]["hash"]:
-            logger.info(f"[Event ID: 103] [{filename}] Word document changed.")
+            logger.info(f"103 File at path: {filename}, Action: Word document changed.")
         elif filename in baseline_data:
-            logger.info(f"[Event ID: {event_id}] [{filename}] No change in Word document.")
+            logger.info(f"100 File at path: {event_id} {filename}, Action: No change in Word document.")
 
         # Update baseline data with new hash and event_id
         baseline_data[filename] = {"hash": current_hash, "event_id": event_id}
@@ -330,11 +334,11 @@ def process_pdf_changes(filename, event_id):
 
         # Compare with baseline
         if filename not in baseline_data:
-            logger.info(f"[Event ID: 101] [{filename}] New PDF document detected.")
+            logger.info(f"101 File at path: {filename}, Action: New PDF document detected.")
         elif current_hash != baseline_data[filename]["hash"]:
-            logger.info(f"[Event ID: 103] [{filename}] PDF document changed.")
+            logger.info(f"103 File at path: {filename}, Action: PDF document changed.")
         else:
-            logger.info(f"[Event ID: 100] [{filename}] No change in PDF document.")
+            logger.info(f"100 File at path: {filename}, Action: No change in PDF document.")
 
         # Update baseline data with new hash
         baseline_data[filename] = {"hash": current_hash, "event_id": event_id}
@@ -373,11 +377,11 @@ def process_text_changes(filename, event_id):
 
         # Compare with baseline
         if filename not in baseline_data:
-            logger.info(f"[Event ID: 101] [{filename}] New text file detected.")
+            logger.info(f"101 File at path: {filename}, Action: New text file detected.")
         elif current_hash != baseline_data[filename]["hash"]:
-            logger.info(f"[Event ID: 103] [{filename}] Text file changed.")
+            logger.info(f"103 File at path: {filename}, Action: Text file changed.")
         else:
-            logger.info(f"[Event ID: 100] [{filename}] No change in text file.")
+            logger.info(f"100 File at path: {filename}, Action: No change in text file.")
 
         # Update baseline data with new hash
         baseline_data[filename] = {"hash": current_hash, "event_id": event_id}
@@ -439,7 +443,7 @@ def process_file(filename, event_id):
             process_text_changes(filename, event_id)  # Add this line to handle text files
         else:
             # Handle other file types here
-            logger.info(f"[Event ID: 103] [{filename}] File has been changed.")
+            logger.info(f"103 File at path: {filename}, Action: File has been changed.")
     except Exception as e:
         logger.error(f"Error processing {filename}: {e}")
 
@@ -544,7 +548,7 @@ def monitor_files(target_folders):
                         
                         # Log new file creation event
                         logger = logging.getLogger(__name__)
-                        logger.info(f"[Event ID: 101] [{full_path}] New file detected.")
+                        logger.info(f"101 File at path: {full_path}, Action: New file detected.")
 
                     # Update baseline information for existing files
                     else:
@@ -562,7 +566,7 @@ def monitor_files(target_folders):
                         if full_path != file_info_dict[full_path]["path"]:
                             # Log file renaming event
                             logger = logging.getLogger(__name__)
-                            logger.info(f"[Event ID: 104] File at path: {file_info_dict[full_path]['path']} has been renamed to {full_path}")
+                            logger.info(f"104 File at path: {file_info_dict[full_path]['path']}, Action: File has been renamed to {full_path}")
                             
                             # Update baseline data with new path
                             file_info_dict[full_path] = file_info_dict.pop(file_info_dict[full_path]["path"])
@@ -574,7 +578,7 @@ def monitor_files(target_folders):
                     if not os.path.exists(path):
                         # Log file deletion event 
                         logger = logging.getLogger(__name__)
-                        logger.info(f"[Event ID: 102] File at path: {path} has been deleted")
+                        logger.info(f"102 File at path: {path}, Action: File has been deleted")
                         del file_info_dict[path]
 
 
@@ -588,7 +592,10 @@ file_handler = logging.FileHandler(log_file)
 file_handler.setLevel(logging.INFO)
 
 # Create a formatter
-formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s')
+formatter = logging.Formatter('Date:%(asctime)s, Time:%(asctime)s, Event_id:%(message)s')
+
+
+# Set the formatter for the file handler
 file_handler.setFormatter(formatter)
 
 # Add the FileHandler to the logger
@@ -603,15 +610,14 @@ if __name__ == "__main__":
     # Define log file path and target folders
     log_file = "folder_logs.log"
     target_folders = [
-        r"C:\Users\yabhi\Desktop\FIM\Monitor",
+        r"C:\Users\vmadmin\Desktop\files"
     ]
     
     # Define backup location
-    backup_location = r"C:\Users\yabhi\Desktop\FIM\Monitor2"
+    backup_location = r"C:\Backup"
 
     # Configure logging
-    logging.basicConfig(filename=log_file, level=logging.INFO,
-                        format='%(asctime)s %(name)s %(levelname)s %(message)s')
+    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(message)s, Event_id:%(message)s, Path:%(levelname)s')
 
     # Collect baseline or monitor files based on user input
     while True:
